@@ -1,15 +1,34 @@
 ﻿@page "/"
+@using MauiApp1Blazor.Data
+@using MauiApp1Blazor.Services
+@using System.Linq
+@inject IFisherYatesService FisherYates
+@inject IDbService DbService;
 
+<button @onclick="LoadImages">Load images</button>
+<button @onclick="Shuffle">Shuffle</button>
+<button @onclick="Test">Play slideshow</button>
 
-<button @onclick="Test">Test</button>
-
-<img src="@imageSource"/>
+@if (loadedImages != null)
+{
+    <ul>
+        @foreach (var image in loadedImages)
+        {
+            <li>@image.FileName</li>
+        }
+    </ul>
+}
 
 <p>@fileName</p>
+<img src="@imageSource" />
+
+
 
 @code {
     string fileName = "";
     string imageSource;
+
+    private List<FileData> loadedImages;
 
     private async Task Test()
     {
@@ -20,16 +39,60 @@
     async void OnClicked(object sender, EventArgs args)
     {
         var result = await PickAndShow(new PickOptions()
+            {
+                FileTypes = FilePickerFileType.Images
+            });
+    }
+
+    private async Task LoadImages()
+    {
+        var res = await FilePicker.PickMultipleAsync(new PickOptions()
+            {
+                FileTypes = FilePickerFileType.Images
+            });
+
+        // TODO: Save results somehow
+
+        var data = res.Select(x => new FileData()
+            {
+                FileName = x.FileName,
+                FullPath = x.FullPath,
+                FolderPath = Path.GetDirectoryName(x.FullPath)
+            });
+
+        loadedImages = data.ToList();
+    }
+
+    private async Task Shuffle()
+    {
+        var resArray = loadedImages.ToArray();
+        FisherYates.Shuffle(resArray);
+
+        loadedImages = resArray.ToList();
+
+
+    }
+
+    private async Task ShowImage(FileResult pic)
+    {
+        byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(pic.FullPath);
+        string base64String = Convert.ToBase64String(imageBytes);
+
+        if (pic.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase))
         {
-            FileTypes = FilePickerFileType.Images           
-        });
+            imageSource = $"data:image/jpg;base64,{base64String}";
+        }
+        else if (pic.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
+        {
+            imageSource = $"data:image/png;base64,{base64String}";
+        }
     }
 
     async Task<FileResult> PickAndShow(PickOptions options)
     {
         try
         {
-            
+
             var result = await FilePicker.PickAsync(options);
             if (result != null)
             {

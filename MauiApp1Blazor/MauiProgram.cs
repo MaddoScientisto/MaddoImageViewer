@@ -21,6 +21,7 @@ public static class MauiProgram
 		builder.Services.AddBlazorWebView();
 		builder.Services.AddSingleton<WeatherForecastService>();
 		builder.Services.AddTransient<IFisherYatesService, FisherYatesService>();
+		builder.Services.AddTransient<IDbService, LiteDbService>();
 
 		return builder.Build();
 	}
