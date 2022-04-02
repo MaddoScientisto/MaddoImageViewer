@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.WebView.Maui;
 using MauiApp1Blazor.Data;
+using MauiApp1Blazor.Services;
+using MauiApp1Blazor.Services.Impl;
 
 namespace MauiApp1Blazor;
 
@@ -18,6 +20,7 @@ public static class MauiProgram
 
 		builder.Services.AddBlazorWebView();
 		builder.Services.AddSingleton<WeatherForecastService>();
+		builder.Services.AddTransient<IFisherYatesService, FisherYatesService>();
 
 		return builder.Build();
 	}

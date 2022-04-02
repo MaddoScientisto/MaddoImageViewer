@@ -19,13 +19,17 @@
 
     async void OnClicked(object sender, EventArgs args)
     {
-        var result = await PickAndShow(PickOptions.Default);
+        var result = await PickAndShow(new PickOptions()
+        {
+            FileTypes = FilePickerFileType.Images           
+        });
     }
 
     async Task<FileResult> PickAndShow(PickOptions options)
     {
         try
         {
+            
             var result = await FilePicker.PickAsync(options);
             if (result != null)
             {
