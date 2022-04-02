@@ -1,0 +1,65 @@
+﻿@page "/"
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+
+<button @onclick="Test">Test</button>
+
+<img src="@imageSource"/>
+
+<p>@fileName</p>
+
+@code {
+    string fileName = "";
+    string imageSource;
+
+    private async Task Test()
+    {
+        var result = await PickAndShow(PickOptions.Default);
+
+    }
+
+    async void OnClicked(object sender, EventArgs args)
+    {
+        var result = await PickAndShow(PickOptions.Default);
+    }
+
+    async Task<FileResult> PickAndShow(PickOptions options)
+    {
+        try
+        {
+            var result = await FilePicker.PickAsync(options);
+            if (result != null)
+            {
+                fileName = $"File Name: {result.FileName}";
+                if (result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
+                    result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
+                {
+                    //var stream = await result.OpenReadAsync();
+
+                    byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(result.FullPath);
+
+                    //var asdf = ImageSource.FromStream(() => stream);
+
+                    //Image = ImageSource.FromStream(() => stream);
+
+                    string base64String = Convert.ToBase64String(imageBytes);
+
+                    imageSource = $"data:image/jpg;base64,{base64String}";
+                }
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            // The user canceled or something went wrong
+        }
+
+        return null;
+    }
+}
