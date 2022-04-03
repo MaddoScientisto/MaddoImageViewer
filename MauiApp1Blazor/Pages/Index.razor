@@ -5,33 +5,78 @@
 @inject IFisherYatesService FisherYates
 @inject IDbService DbService;
 
-<button @onclick="LoadImages">Load images</button>
-<button @onclick="Shuffle">Shuffle</button>
-<button @onclick="Restart">Start slideshow</button>
-<button @onclick="ShowPrevious">Previous</button>
-<button @onclick="ShowNext">Next</button>
 
-@if (loadedImages != null)
-{
-    <ul>
-        @foreach (var image in loadedImages)
+
+<Row>
+    <Column ColumnSize="ColumnSize.Is12">
+        <button @onclick="LoadImages">Load images</button>
+        <button @onclick="Shuffle">Shuffle</button>
+        <button @onclick="Restart">Restart</button>
+        <button @onclick="ShowPrevious">Previous</button>
+        <button @onclick="ShowNext">Next</button>
+        @if (!slideshowRunning)
         {
-            <li>@image.FileName</li>
+            <Button Color="Color.Success" Clicked="@StartSlideshow">Start Slideshow</Button>
         }
-    </ul>
-}
+        else
+        {
+               <Button Color="Color.Danger" Clicked="@StopSlideshow">Stop Slideshow</Button>
+        }
+     
 
-<p>@fileName</p>
-<img src="@imageSource" />
+    </Column>
+</Row>
+<Row>
+    <Column ColumnSize="ColumnSize.Is2">
+        @if (loadedImages != null)
+        {
+             <p>@fileName</p> <p>@imageIndex</p>
+            @if(slideshowRunning)
+            {
+                <p>Running Slideshow</p>
+            }
+            <UnorderedList>
+                <Repeater Items="@items" TItem="FileData" CollectionChanged="@OnCollectionChanged">
+                    <UnorderedListItem>
+                        @context.FileName
+                    </UnorderedListItem>
+                </Repeater>
+            </UnorderedList>
 
+          @*  <ul>
+                @foreach (var image in loadedImages)
+                {
+                    <li>@image.FileName</li>
+                }
+            </ul>*@
+        }
+    </Column>
+    <Column ColumnSize="ColumnSize.Is10">
+       
+        <img src="@imageSource" style="max-width: 100%; max-height: 90vh; display: block; object-fit: scale-down;" />
 
+        
+    </Column>
+</Row>
 
 @code {
     string fileName = "";
     string imageSource;
     private int imageIndex = 0;
 
-    private List<FileData> loadedImages;
+    private bool slideshowRunning = false;
+    //Timer timer;
+
+    System.Collections.ObjectModel.ObservableCollection<FileData> items { get; set; } = new();
+
+    private List<FileData> loadedImages; // TODO: Remove
+
+    private Task OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs eventArgs)
+    {
+        // do something
+
+        return Task.CompletedTask;
+    }
 
     private async Task Test()
     {
@@ -45,6 +90,26 @@
             {
                 FileTypes = FilePickerFileType.Images
             });
+    }
+
+    private async Task StartSlideshow()
+    {
+
+        if (slideshowRunning) return;
+        slideshowRunning = true;
+        while(slideshowRunning)
+        {
+            await Task.Delay(1000 * 10);
+            await ShowNext();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+
+
+    private async Task StopSlideshow()
+    {
+        slideshowRunning = false;
     }
 
     private async Task LoadImages()
@@ -63,7 +128,8 @@
                 FolderPath = Path.GetDirectoryName(x.FullPath)
             });
 
-        loadedImages = data.ToList();
+        loadedImages = data.ToList(); // TODO: Remove
+        items = new(data);
         await Restart();
     }
 
@@ -71,6 +137,8 @@
     {
         imageIndex = -1;
         await ShowNext();
+
+
     }
 
     private async Task Shuffle()
@@ -78,22 +146,53 @@
         var resArray = loadedImages.ToArray();
         FisherYates.Shuffle(resArray);
 
-        loadedImages = resArray.ToList();
+        loadedImages = resArray.ToList(); // TODO Remove
+        items = new(resArray);
+        await Restart();
 
+    }
+
+    private int GetNextIndex(int currentIndex, bool isForward)
+    {
+        if (isForward)
+        {
+            if (currentIndex +1 >= items.Count())
+            {
+                return 0;
+            }
+            else
+            {
+                return currentIndex += 1;
+            }
+        }
+        else
+        {
+            if (currentIndex -1 < 0)
+            {
+                return items.Count() -1;
+            }
+            else
+            {
+                return currentIndex - 1;
+            }
+        }
     }
 
     private async Task ShowNext()
     {
-        await ShowImage(loadedImages[++imageIndex]);
+        imageIndex = GetNextIndex(imageIndex, true);
+        await ShowImage(items[imageIndex]);
     }
 
     private async Task ShowPrevious()
     {
-        await ShowImage(loadedImages[--imageIndex]);
+        imageIndex = GetNextIndex(imageIndex, false);
+        await ShowImage(items[imageIndex]);
     }
 
     private async Task ShowImage(FileData pic)
     {
+        fileName = pic.FileName;
         byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(pic.FullPath);
         string base64String = Convert.ToBase64String(imageBytes);
 

@@ -1,4 +1,4 @@
-This is a blazor app hoster in .net MAUI, it's still in early in development as I'm figuring out the API, I don't havea Minimum Viable Product yet but I hope I can have it very soon.
+This is a blazor app hoster in .net MAUI, it's still in early in development as I'm figuring out the API, MVP status has been reached minus the image preference learning part.
 
 The intent of the app is to have a simple image viewer for folder slideshows, the images are going to be randomized through a Fisher-Yates algorithm at first and the viewed images will be kept track of.
 
