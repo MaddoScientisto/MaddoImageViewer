@@ -7,7 +7,9 @@
 
 <button @onclick="LoadImages">Load images</button>
 <button @onclick="Shuffle">Shuffle</button>
-<button @onclick="Test">Play slideshow</button>
+<button @onclick="Restart">Start slideshow</button>
+<button @onclick="ShowPrevious">Previous</button>
+<button @onclick="ShowNext">Next</button>
 
 @if (loadedImages != null)
 {
@@ -27,6 +29,7 @@
 @code {
     string fileName = "";
     string imageSource;
+    private int imageIndex = 0;
 
     private List<FileData> loadedImages;
 
@@ -61,6 +64,13 @@
             });
 
         loadedImages = data.ToList();
+        await Restart();
+    }
+
+    private async Task Restart()
+    {
+        imageIndex = -1;
+        await ShowNext();
     }
 
     private async Task Shuffle()
@@ -70,10 +80,19 @@
 
         loadedImages = resArray.ToList();
 
-
     }
 
-    private async Task ShowImage(FileResult pic)
+    private async Task ShowNext()
+    {
+        await ShowImage(loadedImages[++imageIndex]);
+    }
+
+    private async Task ShowPrevious()
+    {
+        await ShowImage(loadedImages[--imageIndex]);
+    }
+
+    private async Task ShowImage(FileData pic)
     {
         byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(pic.FullPath);
         string base64String = Convert.ToBase64String(imageBytes);
