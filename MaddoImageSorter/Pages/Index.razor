@@ -1,0 +1,250 @@
+﻿@page "/"
+
+@using System.Linq
+@using MaddoServices.Data
+@using MaddoServices.Services
+@inject IFisherYatesService FisherYates
+@inject IDbService DbService;
+@inject IFolderPicker FolderPicker
+
+
+<Row>
+    <Column ColumnSize="ColumnSize.Is12">
+        <button @onclick="LoadImages">Load images</button>
+        <button @onclick="Shuffle">Shuffle</button>
+        <button @onclick="Restart">Restart</button>
+        <button @onclick="ShowPrevious">Previous</button>
+        <button @onclick="ShowNext">Next</button>
+        @if (!slideshowRunning)
+        {
+            <Button Color="Color.Success" Clicked="@StartSlideshow">Start Slideshow</Button>
+        }
+        else
+        {
+               <Button Color="Color.Danger" Clicked="@StopSlideshow" Loading="@slideshowRunning">Stop Slideshow</Button>
+        }
+     
+
+    </Column>
+</Row>
+<Row>
+    <Column ColumnSize="ColumnSize.Is2">
+        @if (loadedImages != null)
+        {
+             <p>@fileName</p> <p>@imageIndex</p>
+            @if(slideshowRunning)
+            {
+                <p>Running Slideshow</p>
+            }
+            <UnorderedList>
+                <Repeater Items="@items" TItem="FileData" CollectionChanged="@OnCollectionChanged">
+                    <UnorderedListItem>
+                        
+                        @context.FileName
+                    </UnorderedListItem>
+                </Repeater>
+            </UnorderedList>
+
+          @*  <ul>
+                @foreach (var image in loadedImages)
+                {
+                    <li>@image.FileName</li>
+                }
+            </ul>*@
+        }
+    </Column>
+    <Column ColumnSize="ColumnSize.Is10">
+       
+        <img src="@imageSource" style="max-width: 100%; max-height: 90vh; display: block; object-fit: scale-down;" />
+
+        
+    </Column>
+</Row>
+
+@code {
+    string fileName = "";
+    string imageSource;
+    private int imageIndex = 0;
+
+    private bool slideshowRunning = false;
+    //Timer timer;
+
+    System.Collections.ObjectModel.ObservableCollection<FileData> items { get; set; } = new();
+
+    private List<FileData> loadedImages; // TODO: Remove
+
+    private Task OnCollectionChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs eventArgs)
+    {
+        // do something
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Test()
+    {
+        var result = await PickAndShow(PickOptions.Default);
+
+    }
+
+    async void OnClicked(object sender, EventArgs args)
+    {
+        var result = await PickAndShow(new PickOptions()
+            {
+                FileTypes = FilePickerFileType.Images
+            });
+    }
+
+    private async Task StartSlideshow()
+    {
+
+        if (slideshowRunning) return;
+        slideshowRunning = true;
+        while(slideshowRunning)
+        {
+            await Task.Delay(1000 * 10);
+            await ShowNext();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+
+
+    private async Task StopSlideshow()
+    {
+        slideshowRunning = false;
+    }
+
+    private async Task LoadImages()
+    {
+        var fol = await FolderPicker.PickFolder();
+        
+        var res = Directory.EnumerateFiles(fol, "*.jpg", SearchOption.AllDirectories);
+
+        //var res = await FilePicker.PickMultipleAsync(new PickOptions()
+        //    {
+        //        FileTypes = FilePickerFileType.Images
+        //    });
+
+        // TODO: Save results somehow
+
+        var data = res.Select(x => new FileData()
+            {
+                FileName = Path.GetFileName(x),
+                FullPath = x,
+                FolderPath = Path.GetDirectoryName(x)
+            });
+
+        loadedImages = data.ToList(); // TODO: Remove
+        items = new(data);
+        await Restart();
+    }
+
+    private async Task Restart()
+    {
+        imageIndex = -1;
+        await ShowNext();
+
+
+    }
+
+    private async Task Shuffle()
+    {
+        var resArray = loadedImages.ToArray();
+        FisherYates.Shuffle(resArray);
+
+        loadedImages = resArray.ToList(); // TODO Remove
+        items = new(resArray);
+        await Restart();
+
+    }
+
+    private int GetNextIndex(int currentIndex, bool isForward)
+    {
+        if (isForward)
+        {
+            if (currentIndex +1 >= items.Count())
+            {
+                return 0;
+            }
+            else
+            {
+                return currentIndex += 1;
+            }
+        }
+        else
+        {
+            if (currentIndex -1 < 0)
+            {
+                return items.Count() -1;
+            }
+            else
+            {
+                return currentIndex - 1;
+            }
+        }
+    }
+
+    private async Task ShowNext()
+    {
+        imageIndex = GetNextIndex(imageIndex, true);
+        await ShowImage(items[imageIndex]);
+    }
+
+    private async Task ShowPrevious()
+    {
+        imageIndex = GetNextIndex(imageIndex, false);
+        await ShowImage(items[imageIndex]);
+    }
+
+    private async Task ShowImage(FileData pic)
+    {
+        fileName = pic.FileName;
+        byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(pic.FullPath);
+        string base64String = Convert.ToBase64String(imageBytes);
+
+        if (pic.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase))
+        {
+            imageSource = $"data:image/jpg;base64,{base64String}";
+        }
+        else if (pic.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
+        {
+            imageSource = $"data:image/png;base64,{base64String}";
+        }
+    }
+
+    async Task<FileResult> PickAndShow(PickOptions options)
+    {
+        try
+        {
+
+            var result = await Microsoft.Maui.Storage.FilePicker.PickAsync(options);
+            if (result != null)
+            {
+                fileName = $"File Name: {result.FileName}";
+                if (result.FileName.EndsWith("jpg", StringComparison.OrdinalIgnoreCase) ||
+                    result.FileName.EndsWith("png", StringComparison.OrdinalIgnoreCase))
+                {
+                    //var stream = await result.OpenReadAsync();
+
+                    byte[] imageBytes = await System.IO.File.ReadAllBytesAsync(result.FullPath);
+
+                    //var asdf = ImageSource.FromStream(() => stream);
+
+                    //Image = ImageSource.FromStream(() => stream);
+
+                    string base64String = Convert.ToBase64String(imageBytes);
+
+                    imageSource = $"data:image/jpg;base64,{base64String}";
+                }
+            }
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            // The user canceled or something went wrong
+        }
+
+        return null;
+    }
+}

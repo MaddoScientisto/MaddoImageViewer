@@ -4,6 +4,12 @@ VisualStudioVersion = 17.0.31611.283
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MaddoImageViewer", "MauiApp1Blazor\MaddoImageViewer.csproj", "{5756DE6C-22BA-498F-B313-5AB99C19CDF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaddoImageSorter", "MaddoImageSorter\MaddoImageSorter.csproj", "{F0C5059C-FBA1-4487-87FD-7C7BA6DF2B13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaddoImageLib", "MaddoImageLib\MaddoImageLib.csproj", "{B6EBB4F3-8B16-47CC-824D-24C7E9F1ACCD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaddoServices", "MaddoServices\MaddoServices.csproj", "{44680C39-6310-439B-8CAF-89DD9FDEFB04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -16,6 +22,20 @@ Global
 		{5756DE6C-22BA-498F-B313-5AB99C19CDF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5756DE6C-22BA-498F-B313-5AB99C19CDF5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5756DE6C-22BA-498F-B313-5AB99C19CDF5}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F0C5059C-FBA1-4487-87FD-7C7BA6DF2B13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0C5059C-FBA1-4487-87FD-7C7BA6DF2B13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0C5059C-FBA1-4487-87FD-7C7BA6DF2B13}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F0C5059C-FBA1-4487-87FD-7C7BA6DF2B13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0C5059C-FBA1-4487-87FD-7C7BA6DF2B13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0C5059C-FBA1-4487-87FD-7C7BA6DF2B13}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{B6EBB4F3-8B16-47CC-824D-24C7E9F1ACCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6EBB4F3-8B16-47CC-824D-24C7E9F1ACCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6EBB4F3-8B16-47CC-824D-24C7E9F1ACCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6EBB4F3-8B16-47CC-824D-24C7E9F1ACCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44680C39-6310-439B-8CAF-89DD9FDEFB04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44680C39-6310-439B-8CAF-89DD9FDEFB04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44680C39-6310-439B-8CAF-89DD9FDEFB04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44680C39-6310-439B-8CAF-89DD9FDEFB04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
