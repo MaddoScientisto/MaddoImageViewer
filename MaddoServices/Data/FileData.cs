@@ -7,6 +7,7 @@
         public string FolderPath { get; set; }
         public string FullPath { get; set; }
 
+        public DateTime Date { get; set; }
         public DateTime LastSeen { get; set; }
 
         public int ViewdCount { get; set; }

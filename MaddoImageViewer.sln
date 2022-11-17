@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaddoImageLib", "MaddoImage
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaddoServices", "MaddoServices\MaddoServices.csproj", "{44680C39-6310-439B-8CAF-89DD9FDEFB04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaddoImager", "MaddoImager\MaddoImager.csproj", "{367A828E-03D3-4B95-A71F-B4D8750D7627}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +38,12 @@ Global
 		{44680C39-6310-439B-8CAF-89DD9FDEFB04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44680C39-6310-439B-8CAF-89DD9FDEFB04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44680C39-6310-439B-8CAF-89DD9FDEFB04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{367A828E-03D3-4B95-A71F-B4D8750D7627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{367A828E-03D3-4B95-A71F-B4D8750D7627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{367A828E-03D3-4B95-A71F-B4D8750D7627}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{367A828E-03D3-4B95-A71F-B4D8750D7627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{367A828E-03D3-4B95-A71F-B4D8750D7627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{367A828E-03D3-4B95-A71F-B4D8750D7627}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
