@@ -5,6 +5,7 @@ using MaddoImager.ViewModels;
 using MaddoServices.Services.Impl;
 using MaddoServices.Services;
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui.Core;
 
 namespace MaddoImager
 {
@@ -19,10 +20,11 @@ namespace MaddoImager
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                });
+                })
+                .UseMauiCommunityToolkitCore();
 
 #if DEBUG
-		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
 #if WINDOWS

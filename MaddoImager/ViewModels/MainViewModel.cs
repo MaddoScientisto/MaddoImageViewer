@@ -54,8 +54,8 @@ namespace MaddoImager.ViewModels
             }
         }
 
-        private BitmapImage _currentImage;
-        public BitmapImage CurrentImage
+        private ImageSource _currentImage;
+        public ImageSource CurrentImage
         {
             get { return _currentImage; }
             set
@@ -159,15 +159,17 @@ namespace MaddoImager.ViewModels
         {
             _fileName = pic.FileName;
             //CurrentImage = CurrentImage;
-           
-            var v = new BitmapImage();
 
-            using (var memStream = new MemoryStream(await System.IO.File.ReadAllBytesAsync(pic.FullPath)).AsRandomAccessStream())
-            {
-                await v.SetSourceAsync(memStream);
-            }
+            CurrentImage = ImageSource.FromStream(() => new MemoryStream(System.IO.File.ReadAllBytes(pic.FullPath)));
 
-            CurrentImage = v;
+            //var v = new BitmapImage();
+
+            //using (var memStream = new MemoryStream(await System.IO.File.ReadAllBytesAsync(pic.FullPath)).AsRandomAccessStream())
+            //{
+            //    await v.SetSourceAsync(memStream);
+            //}
+
+            //CurrentImage = v;
 
             //var imageBytes = await System.IO.File.ReadAllBytesAsync(pic.FullPath);
             //var base64String = Convert.ToBase64String(imageBytes);
