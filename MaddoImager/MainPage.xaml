@@ -34,24 +34,35 @@
                 ></Button>
             <Button 
                     
-                    Text="Next" 
+                    Text="Shuffle" 
                     Command="{Binding ShuffleCommand}"
                 ></Button>
+
+            <Label
+                Text="{Binding ViewedCount, StringFormat='Viewed: {0}'}">
+
+            </Label>
+            <Label
+                Text="Ayy Lmao"></Label>
+
         </HorizontalStackLayout>
 
 
-        <Image
+        <Image toolkit:DockLayout.DockPosition="None"
                 Source="{Binding CurrentImage}"
                 Aspect="AspectFit"
-               
-                FlexLayout.Grow="1"
+                               
                 />
-        
-        <Label Text="FOOTER"
+
+        <HorizontalStackLayout toolkit:DockLayout.DockPosition="Bottom">
+            
+        </HorizontalStackLayout>
+
+        <!--<Label Text="FOOTER"
                FontSize="Large"
                BackgroundColor="Pink"
                HorizontalTextAlignment="Center"
-               toolkit:DockLayout.DockPosition="Bottom"/>
+               toolkit:DockLayout.DockPosition="Bottom"/>-->
         
     </toolkit:DockLayout>
 

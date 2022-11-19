@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -16,7 +17,7 @@ using MaddoServices.Services;
 
 namespace MaddoImager.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : ObservableViewModelBase
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -26,56 +27,58 @@ namespace MaddoImager.ViewModels
 
         public double Number
         {
-            get { return _number;}
-            set
-            {
-                if (_number != value)
-                {
-                    _number = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Number"));
-                }
-            }
+            get => _number;
+            set => SetProperty(ref _number, value);
         }
 
         private ObservableCollection<FileData> _files = new ObservableCollection<FileData>();
 
         public ObservableCollection<FileData> Files
         {
-            get { return _files; }
-            set
-            {
-                if (_files != value)
-                {
-                    _files = Files;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Files"));
-                }
-            }
+            get => _files;
+            set => SetProperty(ref _files, value);
+           
         }
 
         private ImageSource _currentImage;
         public ImageSource CurrentImage
         {
-            get { return _currentImage; }
-            set
-            {
-                if (_currentImage != value)
-                {
-                    _currentImage = value;
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("CurrentImage"));
-                }
-            }
+            get => _currentImage; set => SetProperty(ref _currentImage, value);
         }
+
+        private FileData _currentFileData = new FileData();
+
+        public FileData CurrentFileData
+        {
+            get => _currentFileData; set => SetProperty(ref _currentFileData, value);
+        }
+
+        //private int _viewedCount;
+        public int ViewedCount
+        {
+            get => CurrentFileData?.ViewdCount ?? 0;
+            //set => SetProperty(ref CurrentFileData.ViewdCount, value);
+        }
+
+        //public void OnPropertyChanged([CallerMemberName] string name = "") =>
+        //PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         private int _imageIndex = 0;
         private string _fileName = "";
 
+        private string _dbPath = "";
+
         private readonly IFisherYatesService _fss;
         private readonly IFolderPicker _folderPicker;
+        private readonly IDbService _dbService;
 
-        public MainViewModel(IFisherYatesService fss, IFolderPicker folderPicker)
+        public MainViewModel(IFisherYatesService fss, IFolderPicker folderPicker, IDbService dbService)
         {
             _fss = fss;
             _folderPicker = folderPicker;
+            _dbService = dbService;
+
+            _dbPath = Path.Combine(FileSystem.Current.AppDataDirectory, "images.db");
 
             InitCommands();
         }
@@ -137,13 +140,32 @@ namespace MaddoImager.ViewModels
             {
                 var res = Directory.EnumerateFiles(fol, fileType, SearchOption.AllDirectories);
 
-                data.AddRange(res.Select(x => new FileData()
-                {
-                    FileName = Path.GetFileName(x),
-                    FullPath = x,
-                    FolderPath = Path.GetDirectoryName(x),
-                    Date = File.GetLastWriteTime(x)
-                }));
+                data.AddRange(res.Select(x => {
+
+                    var fd = _dbService.GetFileData(_dbPath, x);
+
+                    var asd = new FileData()
+                    {
+                        FileName = Path.GetFileName(x),
+                        FullPath = x,
+                        FolderPath = Path.GetDirectoryName(x),
+                        Date = File.GetLastWriteTime(x)
+                    };
+
+                    if (fd != null) {
+
+                        asd.ViewdCount = fd.ViewdCount;
+                        asd.LastSeen = fd.LastSeen;
+                    }
+                    else
+                    {
+                        asd.ViewdCount = 0;
+                        Debug.WriteLine($"New pic found: {x}");
+                    }
+
+                    return asd;
+                    }
+                ));
             }
             Files.Clear();
 
@@ -163,12 +185,23 @@ namespace MaddoImager.ViewModels
 
         private async Task ShowNext()
         {
+            if (_imageIndex != -1 && Files[_imageIndex] != null) {
+
+                Save();
+            }
+
             _imageIndex = GetNextIndex(_imageIndex, true);
             await ShowImage(Files[_imageIndex]);
         }
 
         private async Task ShowPrevious()
         {
+
+            if (_imageIndex != -1 && Files[_imageIndex] != null)
+            {
+                Save();
+            }
+
             _imageIndex = GetNextIndex(_imageIndex, false);
             await ShowImage(Files[_imageIndex]);
         }
@@ -204,7 +237,16 @@ namespace MaddoImager.ViewModels
             _fileName = pic.FileName;
             //CurrentImage = CurrentImage;
 
+
             CurrentImage = ImageSource.FromStream(() => new MemoryStream(System.IO.File.ReadAllBytes(pic.FullPath)));
+            CurrentFileData = pic;
+
+
+            
+            pic.ViewdCount++;
+            PropertyChanged?.Invoke(ViewedCount, new PropertyChangedEventArgs("ViewedCount"));
+            pic.LastSeen = DateTime.Now;
+
 
             //var v = new BitmapImage();
 
@@ -236,6 +278,14 @@ namespace MaddoImager.ViewModels
             Files = new ObservableCollection<FileData>(resArray);
             
             await Restart();
+
+        }
+
+        private void Save()
+        {
+            var cur = Files[_imageIndex];
+            
+            _dbService.Save(_dbPath, cur);
 
         }
     }
