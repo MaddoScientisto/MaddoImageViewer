@@ -12,8 +12,7 @@ using MaddoImageLib.Async;
 
 using MaddoServices.Data;
 using MaddoServices.Services;
-using Microsoft.Maui.Storage;
-using Microsoft.UI.Xaml.Media.Imaging;
+
 
 namespace MaddoImager.ViewModels
 {
@@ -21,8 +20,7 @@ namespace MaddoImager.ViewModels
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public IAsyncCommand LoadCommand { get; private set; }
-        public IAsyncCommand RestartCommand { get; private set; }
+
 
         private double _number;
 
@@ -78,9 +76,28 @@ namespace MaddoImager.ViewModels
         {
             _fss = fss;
             _folderPicker = folderPicker;
-            
+
+            InitCommands();
+        }
+
+        #region Commands
+
+        public IAsyncCommand LoadCommand { get; private set; }
+        public IAsyncCommand RestartCommand { get; private set; }
+        public IAsyncCommand PreviousCommand { get; private set; }
+        public IAsyncCommand NextCommand { get; private set; }
+        public IAsyncCommand ShuffleCommand { get; private set; }
+
+        private void InitCommands()
+        {
             LoadCommand = new AsyncCommand(ExecuteLoadAsync, null, new ErrorHandler());
             RestartCommand = new AsyncCommand(ExecuteRestart, null, new ErrorHandler());
+            NextCommand = new AsyncCommand(ExecuteNextAsync, null, new ErrorHandler());
+            PreviousCommand = new AsyncCommand(ExecutePreviousAsync, null, new ErrorHandler());
+
+            ShuffleCommand = new AsyncCommand(ExecuteShuffleAsync, null, new ErrorHandler());
+
+
         }
 
         private async Task ExecuteRestart()
@@ -89,6 +106,27 @@ namespace MaddoImager.ViewModels
         }
 
         private async Task ExecuteLoadAsync()
+        {
+            await Load();            
+        }
+
+        private async Task ExecuteNextAsync()
+        {
+            await ShowNext();
+        }
+
+        private async Task ExecutePreviousAsync()
+        {
+            await ShowPrevious();
+        }
+
+        private async Task ExecuteShuffleAsync()
+        {
+            await Shuffle();
+        }
+        #endregion
+
+        private async Task Load()
         {
             Debug.WriteLine("It werks");
             var fol = await _folderPicker.PickFolder();
@@ -113,7 +151,7 @@ namespace MaddoImager.ViewModels
             {
                 Files.Add(file);
             }
-            
+
             await Restart();
         }
 
@@ -126,6 +164,12 @@ namespace MaddoImager.ViewModels
         private async Task ShowNext()
         {
             _imageIndex = GetNextIndex(_imageIndex, true);
+            await ShowImage(Files[_imageIndex]);
+        }
+
+        private async Task ShowPrevious()
+        {
+            _imageIndex = GetNextIndex(_imageIndex, false);
             await ShowImage(Files[_imageIndex]);
         }
 
@@ -182,6 +226,17 @@ namespace MaddoImager.ViewModels
             //{
             //    imageSource = $"data:image/png;base64,{base64String}";
             //}
+        }
+
+        private async Task Shuffle()
+        {
+            var resArray = Files.ToArray();
+            _fss.Shuffle(resArray);
+
+            Files = new ObservableCollection<FileData>(resArray);
+            
+            await Restart();
+
         }
     }
 

@@ -7,47 +7,54 @@
     <!--<ContentPage.BindingContext>
         <viewModels:MainViewModel />
     </ContentPage.BindingContext>-->
-   
+    <toolkit:DockLayout>
+        <HorizontalStackLayout toolkit:DockLayout.DockPosition="Top">
+            <Button 
+                    
+                    Text="Load" 
+                    Command="{Binding LoadCommand}"
+                ></Button>
 
-    <ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="30,0"
-            VerticalOptions="Center">
-<HorizontalStackLayout>
-    <Button 
-        x:Name="LoadBtn" 
-            Text="Load" 
-        Command="{Binding LoadCommand}"
-        ></Button>
-</HorizontalStackLayout>
-            <Image
+            <Button 
+                    
+                    Text="Restart" 
+                    Command="{Binding RestartCommand}"
+                ></Button>
+
+            <Button 
+                   
+                    Text="Previous" 
+                    Command="{Binding PreviousCommand}"
+                ></Button>
+
+            <Button 
+                    
+                    Text="Next" 
+                    Command="{Binding NextCommand}"
+                ></Button>
+            <Button 
+                    
+                    Text="Next" 
+                    Command="{Binding ShuffleCommand}"
+                ></Button>
+        </HorizontalStackLayout>
+
+
+        <Image
                 Source="{Binding CurrentImage}"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                HeightRequest="200"
-                HorizontalOptions="Center" />
+                Aspect="AspectFit"
+               
+                FlexLayout.Grow="1"
+                />
+        
+        <Label Text="FOOTER"
+               FontSize="Large"
+               BackgroundColor="Pink"
+               HorizontalTextAlignment="Center"
+               toolkit:DockLayout.DockPosition="Bottom"/>
+        
+    </toolkit:DockLayout>
 
-            <Label
-                Text="Hello, World!"
-                SemanticProperties.HeadingLevel="Level1"
-                FontSize="32"
-                HorizontalOptions="Center" />
-
-            <Label
-                Text="Welcome to .NET Multi-platform App UI"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                FontSize="18"
-                HorizontalOptions="Center" />
-
-            <Button
-                x:Name="CounterBtn"
-                Text="Click me"
-                SemanticProperties.Hint="Counts the number of times you click"
-                Clicked="OnCounterClicked"
-                HorizontalOptions="Center" />
-
-        </VerticalStackLayout>
-    </ScrollView>
+   
 
 </ContentPage>
